@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>DMS 智能座舱远程指挥中心</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; }
+        .header { text-align: center; padding: 10px; border-bottom: 2px solid #21262d; margin-bottom: 20px; }
+        .header h1 { color: #58a6ff; margin: 0; font-size: 28px; letter-spacing: 2px; }
+        .dashboard { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .card { background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .status-box { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .status-badge { padding: 10px 20px; border-radius: 20px; font-weight: bold; font-size: 18px; transition: all 0.3s; }
+        .status-safe { background-color: #238636; color: white; box-shadow: 0 0 15px rgba(35,134,54,0.6); }
+        .status-alarm { background-color: #da3633; color: white; animation: blink 0.8s infinite alternate; box-shadow: 0 0 20px rgba(218,54,51,0.8); }
+        #chart { width: 100%; height: 400px; }
+        .log-box { height: 350px; overflow-y: auto; background-color: #070a0e; border: 1px solid #21262d; padding: 10px; border-radius: 4px; font-family: monospace; }
+        .log-item { margin-bottom: 8px; font-size: 13px; border-left: 3px solid #58a6ff; padding-left: 8px; }
+        .log-alarm { border-left-color: #da3633; color: #ff7b72; background: rgba(218,54,51,0.1); padding: 5px; }
+        @keyframes blink { from { opacity: 1; } to { opacity: 0.5; } }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>📊 DMS 智能座舱远程远程调度大屏</h1>
+    </div>
+
+    <div class="dashboard">
+        <div class="card">
+            <div class="status-box">
+                <h2>🚗 车辆状态实时流 (ESP32_DMS_001)</h2>
+                <div id="statusBadge" class="status-badge status-safe">驾驶员状态：安全</div>
+            </div>
+            <div id="chart"></div>
+        </div>
+
+        <div class="card">
+            <h2>🤖 AI智能座舱 - 云端关怀日志</h2>
+            <div id="logBox" class="log-box">
+                <div class="log-item">系统启动成功，正在等待车机数据网关接入...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. 初始化 ECharts 华丽图表
+        const chartDom = document.getElementById('chart');
+        const myChart = echarts.init(chartDom, 'dark');
+
+        let timeData = [];
+        let earData = [];
+        let marData = [];
+
+        const option = {
+            backgroundColor: 'transparent',
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['EAR (眼睛睁闭)', 'MAR (嘴巴张合)'] },
+            xAxis: { type: 'category', data: timeData, boundaryGap: false },
+            yAxis: { type: 'value', min: 0, max: 1 },
+            series: [
+                { name: 'EAR (眼睛睁闭)', type: 'line', data: earData, smooth: true, itemStyle: { color: '#58a6ff' } },
+                { name: 'MAR (嘴巴张合)', type: 'line', data: marData, smooth: true, itemStyle: { color: '#ffa23e' } }
+            ]
+        };
+        myChart.setOption(option);
+
+        // 2. 建立本地 WebSocket 通信，死死接住后台发来的数据
+        // 💡 核心修改点：频道正式切换为全新的 8888 黄金端口，再也不怕撞车！
+        const ws = new WebSocket("ws://127.0.0.1:8888");
+
+        ws.onmessage = function(event) {
+            const res = JSON.parse(event.data);
+
+            // 更新动态折线图数据
+            const now = new Date().toLocaleTimeString();
+            timeData.push(now);
+            earData.push(res.ear);
+            marData.push(res.mar);
+
+            // 维持折线图窗口只有20个点，防止网页卡死（工业级平滑滚动）
+            if (timeData.length > 20) {
+                timeData.shift(); earData.shift(); marData.shift();
+            }
+            myChart.setOption({ xAxis: { data: timeData }, series: [{ data: earData }, { data: marData }] });
+
+            // 3. 实时切换警报红绿灯状态
+            const badge = document.getElementById('statusBadge');
+            const logBox = document.getElementById('logBox');
+
+            if (res.level >= 2) {
+                badge.className = "status-badge status-alarm";
+                badge.innerText = "🚨 警告：检测到司机疲劳！";
+
+                // 如果包里带有大模型刚生成的骚话，啪地一下刷在右侧日志区
+                if(res.ai_text) {
+                    const newLog = document.createElement('div');
+                    newLog.className = "log-item log-alarm";
+                    newLog.innerText = `[${now}] 🚨 触发大模型关怀："${res.ai_text}"`;
+                    logBox.appendChild(newLog);
+                    logBox.scrollTop = logBox.scrollHeight; // 滚动条自动滚到底
+                }
+            } else {
+                badge.className = "status-badge status-safe";
+                badge.innerText = "驾驶员状态：安全";
+            }
+        };
+
+        ws.onopen = () => console.log("✅ 可视化大屏成功连接到本地网关服务器！");
+    </script>
+</body>
+</html>
