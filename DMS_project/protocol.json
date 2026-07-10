@@ -1,0 +1,14 @@
+{
+  "team_id": "bbyzc_01",
+  "device_id": "esp32s3_dms_01",
+  "timestamp": 1716888888,
+  "metrics": {
+    "ear": 0.28,
+    "mar": 0.15
+  },
+  "status": {
+    "is_blink": false,
+    "is_yawn": false,
+    "alarm_level": 0
+  }
+}

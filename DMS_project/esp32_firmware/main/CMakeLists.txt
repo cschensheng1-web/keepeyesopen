@@ -1,0 +1,23 @@
+idf_component_register(
+    SRCS
+        "main.c"
+        "camera_test.c"
+        "audio_test.c"
+        "ir_led_test.c"
+        "wifi_mqtt_test.c"
+        "peripherals_all.c"
+        "dms_algorithm.c"
+        "ear_mar.c"
+        "perclos.c"
+    INCLUDE_DIRS
+        "."
+    REQUIRES
+        nvs_flash
+        esp_wifi
+        esp_event
+        esp_camera
+        mqtt
+        driver
+        freertos
+        esp_timer
+)
