@@ -92,13 +92,31 @@ COOLDOWN_SECONDS = int(os.getenv("COOLDOWN_SECONDS", "4"))  # 冷却时间
 blink_start_time = None   # 闭眼开始的时刻
 yawn_start_time = None    # 哈欠开始的时刻
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)  # Windows DSHOW 驱动
+if not cap.isOpened():
+    # 尝试备用索引 1
+    cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+if not cap.isOpened():
+    print("❌ 无法打开摄像头！请检查：")
+    print("   1. 摄像头是否已连接/内置摄像头是否可用")
+    print("   2. 是否有其他程序占用了摄像头")
+    exit(1)
+
+print("📷 摄像头已打开")
 print("====== 🚀 边缘端云联动 DMS 算法完全体启动 ======")
 
+frame_count = 0
 while cap.isOpened():
     success, frame = cap.read()
     if not success:
-        break
+        frame_count += 1
+        if frame_count == 1:
+            print("❌ 摄像头读不到画面！检查摄像头是否被遮挡或其他程序占用")
+        if frame_count > 30:
+            print("❌ 连续 30 帧失败，退出")
+            break
+        continue
+    frame_count = 0
     frame = cv2.flip(frame, 1)
     h, w, _ = frame.shape
 
