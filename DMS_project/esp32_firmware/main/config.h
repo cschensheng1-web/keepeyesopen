@@ -18,7 +18,7 @@
 #define CONFIG_H
 
 // ==========================================
-// 📌 OV2640 摄像头引脚（DVP 8-bit 并行接口）
+// 📌 OV9732 摄像头引脚（DVP 8-bit 并行接口，esp32-camera 通过 I2C 自动识别）
 // ==========================================
 #define CAM_PIN_SIOD     21    // I2C SDA
 #define CAM_PIN_SIOC     20    // I2C SCL
