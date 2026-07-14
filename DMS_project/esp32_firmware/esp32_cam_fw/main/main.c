@@ -20,8 +20,8 @@ static camera_config_t cam_cfg = {
     .pin_d3=CAM_PIN_D3, .pin_d2=CAM_PIN_D2, .pin_d1=CAM_PIN_D1, .pin_d0=CAM_PIN_D0,
     .pin_vsync=CAM_PIN_VSYNC, .pin_href=CAM_PIN_HREF, .pin_pclk=CAM_PIN_PCLK,
     .xclk_freq_hz=10000000, .ledc_timer=LEDC_TIMER_0, .ledc_channel=LEDC_CHANNEL_0,
-    .pixel_format=PIXFORMAT_GRAYSCALE, .frame_size=FRAMESIZE_QQVGA,
-    .jpeg_quality=8, .fb_count=2, .grab_mode=CAMERA_GRAB_LATEST,
+    .pixel_format=PIXFORMAT_RGB565, .frame_size=FRAMESIZE_QQVGA,
+    .jpeg_quality=0, .fb_count=1, .grab_mode=CAMERA_GRAB_WHEN_EMPTY,
 };
 
 void app_main(void)
