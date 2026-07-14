@@ -32,8 +32,8 @@
 #define FLASH_LED_PIN   4
 
 // ── 图像参数 ──
-#define CAM_FRAME_WIDTH   320
-#define CAM_FRAME_HEIGHT  240
-#define CAM_FPS           15
+#define CAM_FRAME_WIDTH   160
+#define CAM_FRAME_HEIGHT  120
+#define CAM_FPS           25
 
 #endif

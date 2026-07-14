@@ -184,8 +184,8 @@ async def echo(websocket):
         CONNECTED_WEBSOCKETS.remove(websocket)
 
 async def main():
-    print("🚀 宏博的工业级网页大屏网关已在本地 [ws://127.0.0.1:9000] 挂载就绪！")
-    async with websockets.serve(echo, "127.0.0.1", 9000):
+    print("🚀 宏博的工业级网页大屏网关已在本地 [ws://127.0.0.1:9001] 挂载就绪！")
+    async with websockets.serve(echo, "127.0.0.1", 9001):
         await asyncio.Event().wait()
 
 if __name__ == "__main__":

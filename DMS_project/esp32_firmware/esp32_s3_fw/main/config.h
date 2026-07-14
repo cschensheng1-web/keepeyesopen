@@ -21,8 +21,8 @@
 #define STATUS_LED_PIN  48
 
 // ── WiFi / MQTT ──
-#define WIFI_SSID       "your_wifi"
-#define WIFI_PASSWORD   "your_password"
+#define WIFI_SSID       "MIFI_3319"
+#define WIFI_PASSWORD   "88888888"
 #define MQTT_BROKER_URL "mqtt://59.79.0.156"
 #define MQTT_TOPIC      "dms/car/data"
 
