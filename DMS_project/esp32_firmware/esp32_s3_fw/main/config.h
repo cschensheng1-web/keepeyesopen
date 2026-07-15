@@ -18,12 +18,12 @@
 
 // ── 红外 LED ──
 #define IR_LED_PIN      7
-#define STATUS_LED_PIN  48
+#define STATUS_LED_PIN  48    // ESP32-S3 板载 LED
 
 // ── WiFi / MQTT ──
 #define WIFI_SSID       "MIFI_3319"
 #define WIFI_PASSWORD   "88888888"
-#define MQTT_BROKER_URL "mqtt://59.79.0.156"
+#define MQTT_BROKER_URL "mqtt://broker.emqx.io"
 #define MQTT_TOPIC      "dms/car/data"
 
 // ── 疲劳阈值 ──
@@ -36,6 +36,6 @@
 
 // ── 测试模式 ──
 // 0=全功能 1=UART收+串口打印 2=I2S音频 3=IR LED 4=WiFi+MQTT 5=综合
-#define TEST_MODE  1
+#define TEST_MODE  0
 
 #endif

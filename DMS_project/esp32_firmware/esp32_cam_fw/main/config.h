@@ -5,10 +5,10 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-// ── UART 发送（接 ESP32-S3 的 RX）──
-#define UART_TX_PIN     1
-#define UART_BAUD       115200
-#define UART_NUM        1
+// ── WiFi / MQTT ──
+#define WIFI_SSID       "MIFI_3319"
+#define WIFI_PASSWORD   "88888888"
+#define MQTT_BROKER_URL "mqtt://broker.emqx.io"
 
 // ── 摄像头（AI-Thinker ESP32-CAM 固定引脚）──
 #define CAM_PIN_SIOD    26

@@ -46,15 +46,28 @@ except ImportError:
 except Exception as e:
     print(f"⚠️ TTS 初始化失败: {e}")
 
+import threading
+_tts_lock = threading.Lock()
+_tts_busy = False
+
 def speak_text(text):
-    """在独立线程中播报语音，不阻塞主流程"""
+    """独立线程播报，防并发"""
+    global _tts_busy
     if not tts_enabled:
         return
-    try:
-        tts_engine.say(text)
-        tts_engine.runAndWait()
-    except Exception as e:
-        print(f"⚠️ TTS 播报失败: {e}")
+    if _tts_busy:
+        return  # 上一句还在播，跳过
+    def _speak():
+        global _tts_busy
+        try:
+            _tts_busy = True
+            tts_engine.say(text)
+            tts_engine.runAndWait()
+        except Exception as e:
+            print(f"⚠️ TTS 播报失败: {e}")
+        finally:
+            _tts_busy = False
+    Thread(target=_speak, daemon=True).start()
 
 # ==========================================
 # 🤖 离线蒸馏高情商语料库（作为网络抖动时的金牌保底）
