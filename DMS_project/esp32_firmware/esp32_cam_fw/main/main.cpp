@@ -26,11 +26,11 @@ static camera_config_t cam_cfg = {
     .pin_d3=CAM_PIN_D3,.pin_d2=CAM_PIN_D2,.pin_d1=CAM_PIN_D1,.pin_d0=CAM_PIN_D0,
     .pin_vsync=CAM_PIN_VSYNC,.pin_href=CAM_PIN_HREF,.pin_pclk=CAM_PIN_PCLK,
     .xclk_freq_hz=20000000,.ledc_timer=LEDC_TIMER_0,.ledc_channel=LEDC_CHANNEL_0,
-    .pixel_format=PIXFORMAT_JPEG,.frame_size=FRAMESIZE_QVGA,
-    .jpeg_quality=10,.fb_count=2,.grab_mode=CAMERA_GRAB_WHEN_EMPTY,
+    .pixel_format=PIXFORMAT_JPEG,.frame_size=FRAMESIZE_VGA,
+    .jpeg_quality=8,.fb_count=1,.grab_mode=CAMERA_GRAB_WHEN_EMPTY,
 };
 
-static EventGroupHandle_t evt;
+static EventGroupHandle_t evt, mqtt_evt;
 static void wf_cb(void*a,esp_event_base_t b,int32_t id,void*d){
     if(b==WIFI_EVENT&&id==WIFI_EVENT_STA_START) esp_wifi_connect();
     else if(b==IP_EVENT&&id==IP_EVENT_STA_GOT_IP){
@@ -40,6 +40,7 @@ static void wf_cb(void*a,esp_event_base_t b,int32_t id,void*d){
 }
 static void mq_ok(void*a,esp_event_base_t b,int32_t id,void*d){
     ESP_LOGI(TAG,"MQTT OK");
+    xEventGroupSetBits(mqtt_evt, 1);
 }
 
 extern "C" void app_main(void){
@@ -61,8 +62,11 @@ extern "C" void app_main(void){
     esp_mqtt_client_config_t mc = {};
     mc.broker.address.uri = MQTT_BROKER_URL;
     mq=esp_mqtt_client_init(&mc);
+    mqtt_evt = xEventGroupCreate();
     esp_mqtt_client_register_event(mq,MQTT_EVENT_CONNECTED,mq_ok,NULL);
     esp_mqtt_client_start(mq);
+    ESP_LOGI(TAG,"Waiting MQTT...");
+    xEventGroupWaitBits(mqtt_evt, 1, pdTRUE, pdTRUE, 15000);
 
     ESP_LOGI(TAG,"Capturing...");
     uint32_t fn=0;
@@ -74,6 +78,6 @@ extern "C" void app_main(void){
         esp_mqtt_client_publish(mq,"dms/cam/img",(char*)fb->buf,fb->len,0,0);
         if(fn%25==0) ESP_LOGI(TAG,"#%lu %zuB",fn,fb->len);
         esp_camera_fb_return(fb);
-        vTaskDelay(pdMS_TO_TICKS(200));
+        vTaskDelay(pdMS_TO_TICKS(300));
     }
 }
