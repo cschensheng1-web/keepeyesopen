@@ -1,12 +1,24 @@
 """
 CAM Bridge: ESP32-CAM JPEG → MediaPipe → PERCLOS → MQTT
 """
-import json, time, queue, threading
+import json, time, queue, threading, atexit
 import numpy as np, cv2, mediapipe as mp
 import paho.mqtt.client as mqtt
 import os, sys
 from dotenv import load_dotenv
 load_dotenv()
+
+# 序列号持久化——重启不归零
+SEQ_FILE = os.path.join(os.path.dirname(__file__), '.cam_seq')
+try:
+    with open(SEQ_FILE) as f: seq_counter = int(f.read().strip())
+except:
+    seq_counter = 0
+def save_seq():
+    try:
+        with open(SEQ_FILE, 'w') as f: f.write(str(seq_counter))
+    except: pass
+atexit.register(save_seq)
 
 BROKER = "localhost"
 PORT = 1883
@@ -14,8 +26,8 @@ TOPIC_IMG = "dms/cam/img"
 TOPIC_OUT = "dms/car/data"
 
 EAR_TH = 0.18
-MAR_TH = 0.60
-COOLDOWN_MS = 4000
+MAR_TH = 0.50
+COOLDOWN_MS = 10000
 
 img_queue = queue.Queue(maxsize=3)
 
@@ -89,12 +101,26 @@ def processor():
 
             reported = level
             if level >= 2:
-                if time.time() - last_send < 4.0: reported = 1
+                if time.time() - last_send < 8.0: reported = 1
                 else: last_send = time.time()
 
             out = {"device_id":"ESP32_CAM","data":{"ear":round(ear,2),"mar":round(mar,2)},
                    "status":{"fatigue_level":reported,"desc":desc}}
-            pub.publish(TOPIC_OUT, json.dumps(out))
+            data = json.dumps(out)
+            pub.publish(TOPIC_OUT, data)
+            # 人脸检测率<50%=没人在车里，强制安全
+            if ff / max(fc,1) < 0.5:
+                reported = 0; level = 0; desc = "Normal"; out["status"]["fatigue_level"]=0; out["status"]["desc"]="Normal"
+
+            # Fork版S3兼容: dms/pc_dms_001/vision/observation
+            global seq_counter
+            seq_counter += 1; save_seq()
+            fork_msg = {"schema_version":1,"device_id":"pc_dms_001","sequence":seq_counter,
+                        "source_timestamp_ms":int(time.time()),
+                        "face_valid":True,"ear":round(ear,2),"mar":round(mar,2),
+                        "head_pitch":0,"processing_time_ms":10}
+            fdata = json.dumps(fork_msg)
+            pub.publish("dms/pc_dms_001/vision/observation", fdata)
 
             if fc % 10 == 0:
                 print(f"F#{fc} face={ff} E={ear:.2f} M={mar:.2f} Lv={reported}")
