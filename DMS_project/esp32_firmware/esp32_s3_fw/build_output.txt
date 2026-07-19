@@ -1,0 +1,4 @@
+Microsoft Windows [版本 10.0.22631.6199]
+(c) Microsoft Corporation。保留所有权利。
+
+F:\netplus\keepeyesopen\DMS_project\esp32_firmware\esp32_s3_fw>

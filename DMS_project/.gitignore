@@ -7,27 +7,35 @@ venv/
 
 # 环境变量（含密钥！绝对不能提交）
 .env
+*.env
 
 # ESP-IDF
-esp32_firmware/build/
-esp32_firmware/sdkconfig
-esp32_firmware/sdkconfig.old
-esp32_firmware/*.bin
-esp32_firmware/*.elf
-esp32_firmware/*.map
+**/build/
+**/sdkconfig
+**/sdkconfig.old
+**/*.bin
+**/*.elf
+**/*.map
+**/managed_components/
+**/dependencies.lock
+
+# 组件（用 git submodule 管理，不直接提交）
+**/components/esp_camera/
+**/components/esp32-camera/
 
 # IDE
 .vscode/
 .idea/
+.claude/
 
-# 大模型文件（由程序自动下载）
+# 大模型文件
 *.task
 
 # OS
 .DS_Store
 Thumbs.db
 
-# 临时文件
+# 临时
 *.log
 *.swp
 *~
