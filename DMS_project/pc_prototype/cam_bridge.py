@@ -8,7 +8,7 @@ import os, sys
 from dotenv import load_dotenv
 load_dotenv()
 
-BROKER = "broker.emqx.io"
+BROKER = "44.232.241.40"
 PORT = 1883
 TOPIC_IMG = "dms/cam/img"
 TOPIC_OUT = "dms/car/data"

@@ -43,8 +43,8 @@ async def echo(ws):
     finally: clients.remove(ws)
 
 async def main():
-    print(f"Dashboard: ws://127.0.0.1:9001  MQTT:{BROKER}")
-    async with websockets.serve(echo, "127.0.0.1", 9001):
+    print(f"Dashboard: ws://127.0.0.1:9002  MQTT:{BROKER}")
+    async with websockets.serve(echo, "127.0.0.1", 9002):
         await asyncio.Event().wait()
 
 if __name__ == "__main__":

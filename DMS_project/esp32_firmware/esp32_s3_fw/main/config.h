@@ -23,7 +23,7 @@
 // ── WiFi / MQTT ──
 #define WIFI_SSID       "MIFI_3319"
 #define WIFI_PASSWORD   "88888888"
-#define MQTT_BROKER_URL "mqtt://broker.emqx.io"
+#define MQTT_BROKER_URL "mqtt://44.232.241.40"
 #define MQTT_TOPIC      "dms/car/data"
 
 // ── 疲劳阈值 ──
