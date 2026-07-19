@@ -8,7 +8,7 @@ import os, sys
 from dotenv import load_dotenv
 load_dotenv()
 
-BROKER = "44.232.241.40"
+BROKER = "localhost"
 PORT = 1883
 TOPIC_IMG = "dms/cam/img"
 TOPIC_OUT = "dms/car/data"
