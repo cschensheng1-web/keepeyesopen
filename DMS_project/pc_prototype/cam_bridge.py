@@ -27,7 +27,7 @@ TOPIC_OUT = "dms/car/data"
 
 EAR_TH = 0.18
 MAR_TH = 0.50
-COOLDOWN_MS = 10000
+COOLDOWN_MS = 6000
 
 img_queue = queue.Queue(maxsize=3)
 
@@ -101,7 +101,7 @@ def processor():
 
             reported = level
             if level >= 2:
-                if time.time() - last_send < 8.0: reported = 1
+                if time.time() - last_send < 6.0: reported = 1
                 else: last_send = time.time()
 
             out = {"device_id":"ESP32_CAM","data":{"ear":round(ear,2),"mar":round(mar,2)},
