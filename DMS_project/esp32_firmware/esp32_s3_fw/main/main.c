@@ -365,6 +365,9 @@ static bool start_network(void)
 
 void app_main(void)
 {
+
+    gpio_set_direction(IR_LED_PIN, GPIO_MODE_OUTPUT);
+    gpio_set_level(IR_LED_PIN, 1);
     dms_decision_init(&decision);
     gpio_set_direction(STATUS_LED_PIN, GPIO_MODE_OUTPUT);
     gpio_set_level(STATUS_LED_PIN, 0);

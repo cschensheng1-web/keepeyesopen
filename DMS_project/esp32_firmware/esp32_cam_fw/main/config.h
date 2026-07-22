@@ -8,7 +8,7 @@
 // ── WiFi / MQTT ──
 #define WIFI_SSID       "MIFI_3319"
 #define WIFI_PASSWORD   "88888888"
-#define MQTT_BROKER_URL "mqtt://192.168.0.101"
+#define MQTT_BROKER_URL "mqtt://192.168.0.100"
 
 // ── 摄像头（AI-Thinker ESP32-CAM 固定引脚）──
 #define CAM_PIN_SIOD    26

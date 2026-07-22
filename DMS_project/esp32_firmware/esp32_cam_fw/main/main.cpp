@@ -38,9 +38,15 @@ static void wf_cb(void*a,esp_event_base_t b,int32_t id,void*d){
         ESP_LOGI(TAG,"WiFi:"IPSTR,IP2STR(&ip->ip_info.ip)); xEventGroupSetBits(evt,1);
     }
 }
+static bool mq_connected = false;
 static void mq_ok(void*a,esp_event_base_t b,int32_t id,void*d){
     ESP_LOGI(TAG,"MQTT OK");
+    mq_connected = true;
     xEventGroupSetBits(mqtt_evt, 1);
+}
+static void mq_dc(void*a,esp_event_base_t b,int32_t id,void*d){
+    ESP_LOGW(TAG,"MQTT disconnected");
+    mq_connected = false;
 }
 
 extern "C" void app_main(void){
@@ -64,6 +70,7 @@ extern "C" void app_main(void){
     mq=esp_mqtt_client_init(&mc);
     mqtt_evt = xEventGroupCreate();
     esp_mqtt_client_register_event(mq,MQTT_EVENT_CONNECTED,mq_ok,NULL);
+    esp_mqtt_client_register_event(mq,MQTT_EVENT_DISCONNECTED,mq_dc,NULL);
     esp_mqtt_client_start(mq);
     ESP_LOGI(TAG,"Waiting MQTT...");
     xEventGroupWaitBits(mqtt_evt, 1, pdTRUE, pdTRUE, 15000);
@@ -74,10 +81,10 @@ extern "C" void app_main(void){
         camera_fb_t *fb=esp_camera_fb_get();
         if(!fb){vTaskDelay(10);continue;}
         fn++;
-        /* 只发 JPEG 到 MQTT，不做任何处理 */
-        esp_mqtt_client_publish(mq,"dms/cam/img",(char*)fb->buf,fb->len,0,0);
+        /* 只发 JPEG 到 MQTT */
+        if(mq_connected) esp_mqtt_client_publish(mq,"dms/cam/img",(char*)fb->buf,fb->len,0,0);
         if(fn%25==0) ESP_LOGI(TAG,"#%lu %zuB",fn,fb->len);
         esp_camera_fb_return(fb);
-        vTaskDelay(pdMS_TO_TICKS(300));
+        vTaskDelay(pdMS_TO_TICKS(66));
     }
 }
